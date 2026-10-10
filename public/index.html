@@ -1,0 +1,223 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2563eb">
+  <title>SiteScan AI — Website Auditor</title>
+  <meta name="description" content="Scan your website for SEO, performance, and accessibility improvements with SiteScan AI.">
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f8ff;
+      color: #172033;
+      line-height: 1.6;
+    }
+    header {
+      background: white;
+      border-bottom: 1px solid #e5eaf3;
+      padding: 18px 6%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .brand { font-size: 21px; font-weight: 800; color: #2563eb; }
+    .brand span { color: #172033; }
+    .tag {
+      color: #2563eb;
+      background: #eff6ff;
+      padding: 6px 12px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    main { max-width: 900px; margin: 0 auto; padding: 55px 20px; }
+    .hero { text-align: center; margin-bottom: 35px; }
+    .hero h1 { font-size: clamp(32px, 7vw, 48px); line-height: 1.15; margin: 12px 0; }
+    .hero h1 span { color: #2563eb; }
+    .hero p { color: #64748b; max-width: 600px; margin: 0 auto; }
+    .panel {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      padding: 25px;
+      box-shadow: 0 12px 35px rgba(30, 64, 175, 0.07);
+    }
+    label { display: block; font-weight: 700; margin-bottom: 9px; }
+    .input-row { display: flex; gap: 10px; }
+    input {
+      flex: 1; min-width: 0; padding: 14px;
+      border: 1px solid #cbd5e1; border-radius: 10px;
+      font-size: 16px; color: #172033;
+    }
+    input:focus { outline: 2px solid #93c5fd; border-color: #2563eb; }
+    button {
+      border: 0; border-radius: 10px; padding: 14px 20px;
+      background: #2563eb; color: white; font-weight: 700;
+      font-size: 15px; cursor: pointer;
+    }
+    button:disabled { opacity: .6; cursor: wait; }
+    .hint { font-size: 13px; color: #64748b; margin-top: 10px; }
+    #status { margin-top: 18px; color: #475569; white-space: pre-wrap; }
+    #results { margin-top: 24px; }
+    .score-card {
+      background: #eff6ff; border: 1px solid #bfdbfe;
+      border-radius: 14px; padding: 20px; margin-bottom: 18px;
+    }
+    .score { font-size: 38px; font-weight: 800; color: #2563eb; }
+    .result-item {
+      padding: 16px 0; border-bottom: 1px solid #e5eaf3;
+    }
+    .result-item:last-child { border-bottom: 0; }
+    .result-item h3 { margin: 0 0 5px; font-size: 16px; }
+    .result-item p { margin: 0; color: #64748b; overflow-wrap: anywhere; }
+    .error { color: #b91c1c !important; }
+    .features {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 14px; margin-top: 25px;
+    }
+    .feature {
+      background: white; border: 1px solid #e2e8f0;
+      border-radius: 14px; padding: 18px; text-align: center;
+    }
+    .feature strong { display: block; margin-bottom: 5px; }
+    .feature p { margin: 0; color: #64748b; font-size: 13px; }
+    footer { text-align: center; padding: 25px; color: #64748b; font-size: 13px; }
+    @media (max-width: 600px) {
+      .input-row { flex-direction: column; }
+      .input-row button { width: 100%; }
+      .features { grid-template-columns: 1fr; }
+      main { padding-top: 35px; }
+      .panel { padding: 18px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand">SiteScan <span>AI</span></div>
+    <div class="tag">WEBSITE AUDITOR</div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="tag">SMARTER WEBSITE IMPROVEMENTS</div>
+      <h1>Find out how your website <span>measures up.</span></h1>
+      <p>Scan a website for common SEO, content, and technical issues. Get practical suggestions to help improve it.</p>
+    </section>
+
+    <section class="panel">
+      <form id="auditForm">
+        <label for="website">Enter a website URL</label>
+        <div class="input-row">
+          <input id="website" name="website" type="url"
+            placeholder="https://example.com" required
+            autocomplete="url">
+          <button id="scanButton" type="submit">Scan Website</button>
+        </div>
+        <div class="hint">Enter a public website address beginning with https://</div>
+      </form>
+      <div id="status" role="status" aria-live="polite"></div>
+      <section id="results" aria-live="polite"></section>
+    </section>
+
+    <section class="features">
+      <div class="feature">
+        <strong>SEO checks</strong>
+        <p>Review page titles, descriptions, and headings.</p>
+      </div>
+      <div class="feature">
+        <strong>Technical checks</strong>
+        <p>Look for common page and link issues.</p>
+      </div>
+      <div class="feature">
+        <strong>Actionable tips</strong>
+        <p>Identify improvements worth investigating.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>SiteScan AI · Website insights made simple</footer>
+
+  <script>
+    const form = document.getElementById("auditForm");
+    const input = document.getElementById("website");
+    const button = document.getElementById("scanButton");
+    const statusBox = document.getElementById("status");
+    const resultsBox = document.getElementById("results");
+
+    form.addEventListener("submit", async function(event) {
+      event.preventDefault();
+      resultsBox.replaceChildren();
+      statusBox.className = "";
+      statusBox.textContent = "";
+
+      let url;
+      try {
+        url = new URL(input.value.trim());
+        if (!["http:", "https:"].includes(url.protocol)) {
+          throw new Error("Please use a valid HTTP or HTTPS website URL.");
+        }
+      } catch {
+        statusBox.className = "error";
+        statusBox.textContent = "Please enter a valid website URL, such as https://example.com";
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = "Scanning...";
+      statusBox.textContent = "Checking the website. This may take a few seconds.";
+
+      try {
+        const response = await fetch("/.netlify/functions/audit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ url: url.href })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "The audit could not be completed.");
+        }
+
+        statusBox.textContent = "Scan complete.";
+        const scoreCard = document.createElement("div");
+        scoreCard.className = "score-card";
+
+        const scoreLabel = document.createElement("div");
+        scoreLabel.textContent = "Website audit score";
+        const score = document.createElement("div");
+        score.className = "score";
+        score.textContent = data.score + "/100";
+        const summary = document.createElement("p");
+        summary.textContent = data.summary || "Review the findings below.";
+
+        scoreCard.append(scoreLabel, score, summary);
+        resultsBox.appendChild(scoreCard);
+
+        (data.checks || []).forEach(function(check) {
+          const item = document.createElement("article");
+          item.className = "result-item";
+          const heading = document.createElement("h3");
+          heading.textContent = check.status + " " + check.title;
+          const description = document.createElement("p");
+          description.textContent = check.details;
+          item.append(heading, description);
+          resultsBox.appendChild(item);
+        });
+      } catch (error) {
+        statusBox.className = "error";
+        statusBox.textContent = error.message ||
+          "Something went wrong. Please try again later.";
+      } finally {
+        button.disabled = false;
+        button.textContent = "Scan Website";
+      }
+    });
+  </script>
+</body>
+</html>
